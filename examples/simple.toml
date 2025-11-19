@@ -1,0 +1,5 @@
+[services.netcat]
+command = "nc -l -p ${PORT}"
+
+[services.netcat.env.variables]
+PORT = "8080"

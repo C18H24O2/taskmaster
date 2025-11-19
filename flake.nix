@@ -29,7 +29,9 @@
       formatter = forAllSystems (system: pkgs: pkgs.nixfmt-rfc-style);
       devShells = forAllSystems (
         system: pkgs: {
-          default = (import ./shell.nix) { inherit pkgs; };
+          default = pkgs.mkShell {
+            nativeBuildInputs = with pkgs; [ (python313.withPackages(p: [p.uv])) ];
+          };
         }
       );
     };
