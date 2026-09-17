@@ -3,6 +3,8 @@
 *.d
 *.so
 *.out
+*.pcm
+/build/
 /taskmaster
 /development.mk
 /.direnv/
