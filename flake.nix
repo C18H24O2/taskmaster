@@ -2,8 +2,7 @@
   description = "taskmaster";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    systems.url = "github:nix-systems/x86_64-linux";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixpkgs-unstable";
   };
 
   outputs =
@@ -11,28 +10,42 @@
     let
       inherit (self) outputs;
 
-      systems = (import inputs.systems);
       forAllSystems =
-        fn:
-        (nixpkgs.lib.genAttrs systems (
-          system:
-          let
-            pkgs = import nixpkgs {
-              inherit system;
-              # config.allowUnfree = true;
-            };
-          in
-          fn system pkgs
-        ));
+        function:
+        nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed (
+          system: function nixpkgs.legacyPackages.${system}
+        );
     in
     {
-      formatter = forAllSystems (system: pkgs: pkgs.nixfmt-rfc-style);
-      devShells = forAllSystems (
-        system: pkgs: {
-          default = pkgs.mkShell {
-            nativeBuildInputs = with pkgs; [ (python313.withPackages(p: [p.uv])) ];
+      formatter = forAllSystems (pkgs: pkgs.nixfmt);
+      devShells = forAllSystems (pkgs: {
+        default =
+          let
+            llvmPackages = pkgs.llvmPackages_23;
+            stdenv = pkgs.stdenvAdapters.useMoldLinker llvmPackages.libcxxStdenv;
+          in
+          (pkgs.mkShell.override { inherit stdenv; }) {
+            hardeningDisable = [ "fortify" ];
+
+            nativeBuildInputs = with pkgs; [
+              nasm
+              valgrind
+              gdb
+              
+              # clangd & compile_commands.json support
+              clang-tools
+              bear
+
+              # Put your nix packages here.
+              # Find some at https://search.nixos.org/packages
+            ];
+
+            LIBCXX_SHARE_PATH = "${llvmPackages.libcxx}/share/libc++/v1";
+
+            shellHook = ''
+              unset NIX_ENFORCE_NO_NATIVE
+            '';
           };
-        }
-      );
+      });
     };
 }

@@ -1,5 +1,13 @@
-.direnv/
+*.o
+*.a
+*.d
+*.so
+*.out
+/taskmaster
+/development.mk
+/.direnv/
 *.swp
-__pycache__/
-*.pyc
-*.egg-info/
+/.cache/
+compile_commands.json
+vgcore.*
+core.*
