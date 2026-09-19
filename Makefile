@@ -20,7 +20,7 @@ endif
 
 DEBUG ?= 0
 
-CXX ?= clang++
+CXX := clang++
 CXXFLAGS := -Wall -Wextra -I$(INCLUDE_DIR) -march=native -mtune=native -flto -std=c++23 -stdlib=libc++ -Wno-unused-command-line-argument -Wno-reserved-module-identifier
 ifneq ($(USE_WARNINGS), 1)
 CXXFLAGS += -Werror
@@ -31,6 +31,7 @@ ifeq ($(DEBUG), 1)
 CXXFLAGS += -g3 -gdwarf-3 -ggdb
 endif
 
+LIBCXX_SHARE_PATH ?= /usr/share/libc++/v1/
 STD_MODULE_DIR := $(LIBCXX_SHARE_PATH)
 STD_PCM := $(MODULES_DIR)/std.pcm
 
