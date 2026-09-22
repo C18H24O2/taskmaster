@@ -11,5 +11,5 @@
 *.swp
 /.cache/
 compile_commands.json
-vgcore.*
-core.*
+/vgcore.*
+/core.*

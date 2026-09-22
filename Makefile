@@ -39,7 +39,7 @@ include sources.mk
 
 OBJS := $(patsubst %.cpp,%.o,$(SRCS))
 OBJS_MODULES := $(patsubst %.cppm,%.o,$(SRCS_MODULES))
-PCMS_MODULES := $(patsubst %.cppm,%.pcm,$(SRCS_MODULES))
+PCMS_MODULES := $(patsubst %.cppm,$(NAME).%.pcm,$(SRCS_MODULES))
 SRCS := $(addprefix $(SRC_DIR)/,$(SRCS))
 SRCS_MODULES := $(addprefix $(SRC_DIR)/,$(SRCS_MODULES))
 OBJS := $(addprefix $(OBJ_DIR)/,$(OBJS))
@@ -49,6 +49,11 @@ PCMS_MODULES := $(addprefix $(MODULES_DIR)/,$(PCMS_MODULES))
 .PHONY: all
 all:
 	@$(MAKE) -j$(shell nproc) $(NAME)
+
+$(MODULES_DIR)/$(NAME).client.pcm: $(SRC_DIR)/client.cppm $(MODULES_DIR)/$(NAME).cli.args.pcm
+$(MODULES_DIR)/$(NAME).server.pcm: $(SRC_DIR)/server.cppm $(MODULES_DIR)/$(NAME).cli.args.pcm
+$(MODULES_DIR)/$(NAME).standalone.pcm: $(SRC_DIR)/standalone.cppm $(MODULES_DIR)/$(NAME).cli.args.pcm
+$(MODULES_DIR)/$(NAME).cli.pcm: $(SRC_DIR)/cli.cppm $(MODULES_DIR)/$(NAME).cli.args.pcm $(MODULES_DIR)/$(NAME).client.pcm $(MODULES_DIR)/$(NAME).server.pcm $(MODULES_DIR)/$(NAME).standalone.pcm
 
 $(NAME): $(OBJS) $(OBJS_MODULES)
 	$(CXX) $(LDFLAGS) -o $@ $^
@@ -62,12 +67,12 @@ $(OBJ_DIR)/std.o: $(STD_PCM)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(MODULES_DIR)/%.pcm: $(SRC_DIR)/%.cppm $(STD_PCM)
+$(MODULES_DIR)/$(NAME).%.pcm: $(SRC_DIR)/%.cppm $(STD_PCM)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -fprebuilt-module-path=$(MODULES_DIR) --precompile $< -o $@
 
 # our pcm
-$(OBJ_DIR)/%.o: $(MODULES_DIR)/%.pcm $(STD_PCM)
+$(OBJ_DIR)/%.o: $(MODULES_DIR)/$(NAME).%.pcm $(STD_PCM)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -fprebuilt-module-path=$(MODULES_DIR) -c $< -o $@
 
