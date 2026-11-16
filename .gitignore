@@ -13,3 +13,5 @@
 compile_commands.json
 /vgcore.*
 /core.*
+.zig-cache/
+zig-out/

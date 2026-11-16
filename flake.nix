@@ -19,33 +19,13 @@
     {
       formatter = forAllSystems (pkgs: pkgs.nixfmt);
       devShells = forAllSystems (pkgs: {
-        default =
-          let
-            llvmPackages = pkgs.llvmPackages_23;
-            stdenv = pkgs.stdenvAdapters.useMoldLinker llvmPackages.libcxxStdenv;
-          in
-          (pkgs.mkShell.override { inherit stdenv; }) {
-            hardeningDisable = [ "fortify" ];
-
-            nativeBuildInputs = with pkgs; [
-              nasm
-              valgrind
-              gdb
-              
-              # clangd & compile_commands.json support
-              clang-tools
-              bear
-
-              # Put your nix packages here.
-              # Find some at https://search.nixos.org/packages
-            ];
-
-            LIBCXX_SHARE_PATH = "${llvmPackages.libcxx}/share/libc++/v1";
-
-            shellHook = ''
-              unset NIX_ENFORCE_NO_NATIVE
-            '';
-          };
+        default = pkgs.mkShell {
+          nativeBuildInputs = with pkgs; [
+            zigPackages."0.17"
+            valgrind
+            gdb
+          ];
+        };
       });
     };
 }
